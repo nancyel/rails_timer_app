@@ -1,0 +1,75 @@
+<!-- app/views/timer/index.html.erb -->
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  <h1 class="text-4xl font-bold text-gray-800 mb-6">Simple Timer</h1>
+  <div class="bg-white shadow-xl p-6 rounded-lg text-3xl font-mono text-gray-800" id="timer">
+    00:00:00
+  </div>
+  <div class="space-x-4 mt-6">
+    <button onclick="startTimer()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      Start
+    </button>
+    <button onclick="stopTimer()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+      Stop
+    </button>
+    <button onclick="resetTimer()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+      Reset
+    </button>
+  </div>
+  <div id="spinner" class="flex justify-center items-center">
+    <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
+  </div>
+  <div id="motivation-content" class="mt-5 italic text-lg text-gray-600 max-w-xl text-center border-l-4 border-blue-500 pl-4">
+    Loading a quote about time...
+    <%= @motivation %>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    fetch('/timer/motivation')
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById('spinner').style.display = 'none';
+          document.getElementById('motivation-content').innerHTML = text;
+    })
+    .catch(error => console.log('Error loading the motivation: ', error));
+  });
+
+  var timerInterval;
+  var seconds = 0, minutes = 0, hours = 0;
+
+  function startTimer() {
+    if (!timerInterval) {
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  function resetTimer() {
+    stopTimer();
+    seconds = 0; minutes = 0; hours = 0;
+    document.getElementById('timer').innerHTML = '00:00:00';
+  }
+
+  function updateTimer() {
+    seconds++;
+    if (seconds >= 60) {
+      seconds = 0;
+      minutes++;
+    }
+    if (minutes >= 60) {
+      minutes = 0;
+      hours++;
+    }
+    document.getElementById('timer').innerHTML = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+  }
+
+  function pad(value) {
+    return value.toString().padStart(2, '0');
+  }
+</script>
